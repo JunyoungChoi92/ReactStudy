@@ -11,9 +11,10 @@
 9. [useState vs useReducer](#usestate-vs-usereducer)
 10. [React.createContext](#reactcreatecontext)
 11. [변수의 불변성을 지키기 위하여 - immer library](#변수의-불변성을-지키기-위하여---immer-library)
-12. [Meaning of &(Ampersand) in React](#meaning-of-ampersand-in-react)
-13. [styled-components](#styled-components)
-14. [React Router](#react-router)
+12. [componentDidCatch](#componentdidcatch)
+13. [Meaning of &(Ampersand) in React](#meaning-of-ampersand-in-react)
+14. [styled-components](#styled-components)
+15. [React Router](#react-router)
 
 ===
 
@@ -413,6 +414,35 @@ function ThemeDisplay() {
 - 참조 : https://react.vlpt.us/basic/23-immer.html
 
 ## componentDidCatch
+
+- componentDidCatch is a lifecycle method in React that is called when an error is thrown in the render method of a component. This method receives two arguments: the error and an error info object.
+
+It allows developers to catch and handle errors within a component, preventing them from propagating and causing the whole application to break. By using this method, developers can provide fallback UI or log the error to help with debugging.
+
+```javascript
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    logErrorToMyService(error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <h1>Something went wrong.</h1>;
+    }
+
+    return this.props.children;
+  }
+}
+```
 
 ---
 
