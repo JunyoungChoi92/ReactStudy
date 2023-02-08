@@ -1,3 +1,21 @@
+> INDEX
+> [1. React](#react)
+> [2. Virtual DOM, reflecting a actual DOM.](#virtual-dom-reflecting-a-actual-dom)
+> [3. onClick, onChange, setState](#onclick-onchange-setstate)
+> [4. 클래스형 컴포넌트의 라이프사이클](#클래스형-컴포넌트의-라이프사이클)
+> [5. useRef](#useref)
+> [6. useEffect](#useeffect)
+> [7. useMemo, useCallback, React.memo](#usememo-usecallback-reactmemo)
+> [8. useReducer](#usereducer)
+> [9. useState vs useReducer](#usestate-vs-usereducer)
+> [10. React.createContext](#reactcreatecontext)
+> [11. 변수의 불변성을 지키기 위하여 - immer library](#변수의-불변성을-지키기-위하여---immer-library)
+> [12. Meaning of &(Ampersand) in React](#meaning-of-ampersand-in-react)
+> [13. styled-components](#styled-components)
+> [14. React Router](#react-router)
+
+===
+
 ## React
 
 - React is a popular JavaScript library used for building user interfaces. It was developed by Facebook and is now maintained by Facebook and a community of individual developers and companies.
@@ -22,7 +40,7 @@
 
 - In this way, React's use of the virtual DOM and its efficient dirty checking process allow it to update the user interface quickly and efficiently, making it a popular choice for building dynamic and interactive user interfaces.
 
-### onClick, onChange, setState
+## onClick, onChange, setState
 
 - **onClick** is a prop that you can add to a React component to make it trigger a function when the component is clicked. It's commonly used with buttons and other interactive elements.
 
@@ -63,7 +81,7 @@ const Example = () => {
 };
 ```
 
-### 클래스형 컴포넌트의 라이프사이클
+## 클래스형 컴포넌트의 라이프사이클
 
 ![lifecycle](https://i.imgur.com/cNfpEph.png)
 
@@ -122,7 +140,7 @@ class MyComponent extends React.Component {
 }
 ```
 
-### useRef
+## useRef
 
 - useRef is a hook in React that allows you to access the value of a DOM element or a component instance. **It returns a mutable object with a single property, current, which you can use to store a reference to a DOM node or a component instance**.
 
@@ -149,7 +167,7 @@ const InputExample = () => {
 };
 ```
 
-### useEffect
+## useEffect
 
 - useEffect is a hook in React that allows you to perform **side effects** in your component, such as making API calls, updating the DOM, or tracking analytics. useEffect runs after **every render of your component**, which means **it can react to changes in the component's state or props**.
 
@@ -221,7 +239,7 @@ const Example = () => {
 };
 ```
 
-### useMemo, useCallback, React.memo
+## useMemo, useCallback, React.memo
 
 - **useMemo** is a hook in React that allows you to optimize the performance of your component by **memoizing a computed value**. Memoizing a value means caching the result of a computation so that it can be **reused without having to be recomputed**, as long as its dependencies have not changed. useMemo takes two arguments: a function that returns the memoized value, and an array of dependencies. The memoized value is computed only when one of its dependencies changes.
 
@@ -312,7 +330,7 @@ const Example = () => {
 };
 ```
 
-### useReducer
+## useReducer
 
 - useReducer is a hook in React that allows you to **manage state updates and complex logic in your components in a centralized and structured way**. The hook provides a way to manage state that depends on the previous state and is used as an alternative to setState in some cases.
 
@@ -348,14 +366,14 @@ function Counter() {
 }
 ```
 
-#### useState vs useReducer
+## useState vs useReducer
 
 - The decision to use useReducer or useState in React depends on the complexity of the state management in your component.
 - useState is a simple and easy-to-use hook that can handle simple state updates in your components. It's good for managing small amounts of state that don't require a lot of logic or computation. For example, if you need to store a single value like a form input, a toggle switch, or a small piece of data, useState is a good choice.
 - useReducer, on the other hand, is a more powerful hook that is better suited for complex state management in your components. It's good for managing state updates that require a lot of logic or computation, or state updates that depend on the previous state. For example, if you need to manage state updates that involve multiple values, or if you need to perform complex calculations or logic to determine the next state, useReducer is a good choice.
 - In general, if your state updates are simple and straightforward, useState is a good choice. If your state updates are more complex, useReducer is a better choice. However, keep in mind that you can always refactor your code from useState to useReducer if you find that your state management is becoming too complex for useState to handle effectively.
 
-### React.createContext
+## React.createContext
 
 - React.createContext is a method in React that creates a Context object. A Context provides a way to **share values between components without having to pass props down** manually through every level of the component tree.
 
@@ -389,11 +407,11 @@ function ThemeDisplay() {
 }
 ```
 
-### 변수의 불변성을 지키기 위하여 - immer library
+## 변수의 불변성을 지키기 위하여 - immer library
 
 - 참조 : https://react.vlpt.us/basic/23-immer.html
 
-### componentDidCatch
+## componentDidCatch
 
 ---
 
