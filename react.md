@@ -1,18 +1,19 @@
-INDEX
-[1. React](#react)
-[2. Virtual DOM, reflecting a actual DOM.](#virtual-dom-reflecting-a-actual-dom)
-[3. onClick, onChange, setState](#onclick-onchange-setstate)
-[4. 클래스형 컴포넌트의 라이프사이클](#클래스형-컴포넌트의-라이프사이클)
-[5. useRef](#useref)
-[6. useEffect](#useeffect)
-[7. useMemo, useCallback, React.memo](#usememo-usecallback-reactmemo)
-[8. useReducer](#usereducer)
-[9. useState vs useReducer](#usestate-vs-usereducer)
-[10. React.createContext](#reactcreatecontext)
-[11. 변수의 불변성을 지키기 위하여 - immer library](#변수의-불변성을-지키기-위하여---immer-library)
-[12. Meaning of &(Ampersand) in React](#meaning-of-ampersand-in-react)
-[13. styled-components](#styled-components)
-[14. React Router](#react-router)
+# INDEX
+
+1. [React](#react)
+2. [Virtual DOM, reflecting a actual DOM.](#virtual-dom-reflecting-a-actual-dom)
+3. [onClick, onChange, setState](#onclick-onchange-setstate)
+4. [클래스형 컴포넌트의 라이프사이클](#클래스형-컴포넌트의-라이프사이클)
+5. [useRef](#useref)
+6. [useEffect](#useeffect)
+7. [useMemo, useCallback, React.memo](#usememo-usecallback-reactmemo)
+8. [useReducer](#usereducer)
+9. [useState vs useReducer](#usestate-vs-usereducer)
+10. [React.createContext](#reactcreatecontext)
+11. [변수의 불변성을 지키기 위하여 - immer library](#변수의-불변성을-지키기-위하여---immer-library)
+12. [Meaning of &(Ampersand) in React](#meaning-of-ampersand-in-react)
+13. [styled-components](#styled-components)
+14. [React Router](#react-router)
 
 ===
 
