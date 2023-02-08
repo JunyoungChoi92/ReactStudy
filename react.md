@@ -3,13 +3,26 @@
 ## react란?
 
 - React is a popular JavaScript library used for building user interfaces. It was developed by Facebook and is now maintained by Facebook and a community of individual developers and companies.
+
 - There are several reasons why React is widely used:
   1. **Reusable Components**: React allows developers to create reusable UI components, which makes it easier to build complex user interfaces.
   2. **Virtual DOM**: React uses a virtual DOM, which increases the app's performance by making updates faster. The virtual DOM can update the real DOM more efficiently than a direct update.
   3. **Unidirectional Data Flow**: React follows a unidirectional data flow, which means that the parent components pass data to child components through props. This helps in maintaining the consistency of the app and debugging it is easier.
-  4. **Server-side rendering**: React can be used for server-side rendering, which means that the initial HTML can be rendered on the server and then sent to the client, rather than being generated completely on the client-side. **cau.) 기본적으로 CSR이지만, NextJS 등 라이브러리를 통해 SSR 구현이 쉽게 가능합니다.**
+  4. **Server-side rendering**: React can be used for server-side rendering, which means that the initial HTML can be rendered on the server and then sent to the client, rather than being generated completely on the client-side. **cau.) 기본적으로 CSR이지만, NextJS 등 라이브러리를 통해 SSR 구현이 가능함.**
   5. **Popularity**: React is one of the most popular front-end libraries and has a large community, which means that there are many resources available for learning and support.
 - Overall, React makes it easier to build scalable, fast, and dynamic user interfaces, which is why it has become so popular.
+
+## Virtual DOM, reflecting a actual DOM.
+
+![virtual Dom](https://blog.kakaocdn.net/dn/pIbeG/btrqVvNGLLc/cCZ6KqfEm1uGwoC9whPdZk/img.png)
+
+- React is used to build user interfaces because of its efficient and effective handling of changes to the data, also known as **"state"**. When the state of a component changes, React needs to update the corresponding parts of the user interface to reflect that change.
+
+- React uses a concept called **"dirty checking"** to optimize this process. Dirty checking refers to the process of checking **whether the state of a component has changed** and, **if it has, updating the corresponding parts of the user interface**. With traditional dirty checking, the entire component tree is re-rendered on every state change, which can be slow and resource-intensive, especially for complex applications.
+
+- React solves this problem with **the virtual DOM**. The virtual DOM is a lightweight, in-memory representation of the real DOM, the tree structure of HTML elements that a browser uses to render a page. **When the state of a component changes, React updates the virtual DOM representation of the component.** React then calculates the difference between **the virtual DOM before and after** the change and updates the real DOM only with the necessary changes, making the updates as efficient as possible.
+
+- In this way, React's use of the virtual DOM and its efficient dirty checking process allow it to update the user interface quickly and efficiently, making it a popular choice for building dynamic and interactive user interfaces.
 
 ### onClick, onChange, setState
 
@@ -17,8 +30,17 @@
 
 - **onChange** is a prop that's used with form inputs such as text fields and select elements. It allows you to run a function when the value of the input changes.
 
-- **setState** is a method in React that allows you to change the state of a component. State is an object that holds data specific to a component, and can be updated in response to user interactions or other events. When the state changes, the component will re-render to reflect the updated state. The setState method takes an object that describes the changes to the state and merges it with the current state, triggering a re-render if necessary.
+- **setState** is a method in React that allows you to change the state of a component. **State** is an object that holds data specific to a component, and can be updated in response to user interactions or other events. **When the state changes, the component will re-render to reflect the updated state**. The setState method takes an object that describes the changes to the state and merges it with the current state, triggering a re-render if necessary.
+
   - Note: setState should be used judiciously, as too many updates to the state can impact performance. In some cases, it's more efficient to **use the useState hook or the useReducer hook instead**.
+
+- In React, **setState is a method used to update the state of a component**. The state is an object that holds data and represents the components' dynamic data, which can change during the lifetime of a component. When the state changes, React updates the component by re-rendering it, making sure that the user interface stays up-to-date.
+
+- The concept of the virtual DOM is closely related to how React updates components. \***\*The virtual DOM** is a virtual representation of the actual DOM** (the Document Object Model), which is the tree structure of HTML elements that a browser uses to render a page. The virtual DOM is a lightweight, in-memory representation of the real DOM that React uses to keep track of changes and update the real DOM **efficiently\*\*.
+
+- **When the state of a component changes, React updates the virtual DOM representation of the component**. React then calculates **the difference between the virtual DOM **before and after\***\* the change and updates the real DOM only with **the necessary changes\*\*, making the updates as efficient as possible. This process is much faster than updating the real DOM directly, which can be slow and resource-intensive, especially for complex applications.
+
+- In summary, setState is used to update the state of a component in React, which triggers a re-render of the component and updates the virtual DOM representation. The virtual DOM is then used to update the real DOM efficiently, making sure that the user interface stays up-to-date and responsive.
 
 ```javascript
 import React, { useState } from "react";
@@ -43,13 +65,72 @@ const Example = () => {
 };
 ```
 
+### 클래스형 컴포넌트의 라이프사이클
+
+![lifecycle](https://i.imgur.com/cNfpEph.png)
+
+- In React, a component has several lifecycle methods that give you the ability to control the behavior of a component during its lifetime. These lifecycle methods are called at different stages of the component's existence, from initial render to destruction. The lifecycle methods can be used to perform specific tasks such as setting up a component's initial state, performing data fetching, or cleaning up after a component is no longer needed.
+
+- Here are the main lifecycle methods in React:
+
+  - **constructor**: This method is called before the component is mounted and is used to initialize the component's state and bind event handlers.
+  - **componentDidMount**: This method is called after the component has been rendered and is used to perform side effects, such as data fetching, or setting up subscriptions.
+  - **shouldComponentUpdate**: This method is called before a re-render and can be used to optimize performance by avoiding unnecessary renderings.
+  - **componentDidUpdate**: This method is called after a component has been updated and is used to perform side effects, such as updating the scroll position after a re-render.
+  - **componentWillUnmount**: This method is called before a component is destroyed and is used to perform cleanup tasks, such as canceling timers or removing event listeners.
+
+- It's important to note that the lifecycle methods are used differently in **class components**, which are components that are defined using a class, and **functional components**, which are components that are defined using a function. The use of lifecycle methods is also changing in React as the library continues to evolve, with some methods becoming deprecated and new methods being introduced. Nevertheless, understanding the lifecycle methods is crucial for building performant and well-structured React applications.
+
+- **Mounting**: This phase starts when a component is added to the DOM, and it includes the following methods:
+- **constructor**: This method is called when the component is created. It's a good place to initialize state and bind event handlers.
+- **render**: This method returns a description of what the component should look like. It should be a pure function that doesn't modify the component's state.
+- **componentDidMount**: This method is called after the component has been added to the DOM. It's a good place to make API requests, start timers, and interact with other DOM elements.
+- **Updating**: This phase starts when the component's state or props change, and it includes the following methods:
+- **render**: As mentioned before, this method is called whenever the component needs to re-render.
+- **shouldComponentUpdate**: This method is called before the render method, and it allows you to avoid unnecessary re-renders.
+- **componentDidUpdate**: This method is called after the component has been updated. It's a good place to make API requests or other updates that depend on the component's state or props.
+- **Unmounting**: This phase starts when a component is removed from the DOM, and it includes the following method:
+- **componentWillUnmount**: This method is called just before the component is removed from the DOM. It's a good place to clean up any timers, event listeners, or other resources that the component has created.
+
+```javascript
+class MyComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { count: 0 };
+  }
+
+  componentDidMount() {
+    console.log("Component mounted");
+  }
+
+  componentDidUpdate() {
+    console.log("Component updated");
+  }
+
+  componentWillUnmount() {
+    console.log("Component will unmount");
+  }
+
+  render() {
+    return (
+      <div>
+        <p>{this.state.count}</p>
+        <button onClick={() => this.setState({ count: this.state.count + 1 })}>
+          Increase count
+        </button>
+      </div>
+    );
+  }
+}
+```
+
 ### useRef
 
-- useRef is a hook in React that allows you to access the value of a DOM element or a component instance. It returns a mutable object with a single property, current, which you can use to store a reference to a DOM node or a component instance.
+- useRef is a hook in React that allows you to access the value of a DOM element or a component instance. **It returns a mutable object with a single property, current, which you can use to store a reference to a DOM node or a component instance**.
 
 - One common use case for useRef is to access the value of an input field or other form element. For example, you can use useRef to store a reference to a text input, and then pass that reference to a function that retrieves the input value.
 
-- Another use case for useRef is to keep a value that persists across renders. For example, you can use useRef to store a value that you want to keep track of, even if the component re-renders.
+- Another use case for useRef is to **keep a value that persists across renders**. For example, you can use useRef to store a value that you want to keep track of, even if the component re-renders.
 
 ```javascript
 import React, { useRef } from "react";
@@ -74,10 +155,10 @@ const InputExample = () => {
 
 - useEffect is a hook in React that allows you to perform **side effects** in your component, such as making API calls, updating the DOM, or tracking analytics. useEffect runs after **every render of your component**, which means **it can react to changes in the component's state or props**.
 
-- What does useEffect do? By using this Hook, you tell React that your component needs to do something after render. React will remember the function you passed (we’ll refer to it as our “effect”), and call it later after performing the DOM updates. In this effect, we set the document title, but we could also perform data fetching or call some other imperative API.
-- Why is useEffect called inside a component? Placing useEffect inside the component lets us access the count state variable (or any props) right from the effect. We don’t need a special API to read it — it’s already in the function scope. Hooks embrace JavaScript closures and avoid introducing React-specific APIs where JavaScript already provides a solution.
-- Does useEffect run after every render? Yes! By default, it runs both after the first render and after every update. (We will later talk about how to customize this.) Instead of thinking in terms of “mounting” and “updating”, you might find it easier to think that effects happen “after render”. React guarantees the DOM has been updated by the time it runs the effects.
-- Unlike componentDidMount or componentDidUpdate, effects scheduled with useEffect don’t block the browser from updating the screen. This makes your app feel more responsive. The majority of effects don’t need to happen synchronously. In the uncommon cases where they do (such as measuring the layout), there is a separate useLayoutEffect Hook with an API identical to useEffect.
+- **What does useEffect do?** By using this Hook, you tell React that your component needs to do something after render. React will remember the function you passed (we’ll refer to it as our “effect”), and call it later after performing the DOM updates. In this effect, we set the document title, but we could also perform data fetching or call some other imperative API.
+- **Why is useEffect called inside a component?** Placing useEffect inside the component lets us access the count state variable (or any props) right from the effect. We don’t need a special API to read it — it’s already in the function scope. Hooks embrace JavaScript closures and avoid introducing React-specific APIs where JavaScript already provides a solution.
+- **Does useEffect run after every render?** Yes! By default, it runs both after the first render and after every update. (We will later talk about how to customize this.) Instead of thinking in terms of “mounting” and “updating”, you might find it easier to think that effects happen “after render”. React guarantees the DOM has been updated by the time it runs the effects.
+- **Unlike** componentDidMount or componentDidUpdate, **effects scheduled with useEffect don’t block the browser from updating the screen**. This makes your app feel more responsive. **The majority of effects **don’t** need to happen synchronously**. In the uncommon cases where they do (such as measuring the layout), there is a separate useLayoutEffect Hook with an API identical to useEffect.
 
 ```javascript
 import React, { useState, useEffect } from "react";
@@ -105,9 +186,9 @@ const Example = () => {
 };
 ```
 
-- clean-up function:
+- **clean-up function**:
 
-  - useEffect can also include a cleanup function, which is a function that is called before the effect is re-run or before the component is unmounted. The cleanup function is used to undo the changes made by the effect, or to cancel any ongoing operations, such as an ongoing network request.
+  - useEffect can also include a cleanup function, which is a function **that is called before the effect is re-run or before the component is unmounted**. The cleanup function is used to undo the changes made by the effect, or to cancel any ongoing operations, such as an ongoing network request.
 
   - useEffect 훅의 콜백 함수가 반환한 componentWillUnmount 함수가 useEffect 훅의 클린-업 함수입니다. 반환하는 함수의 이름은 중요하지 않기 때문에 화살표 함수(() => {})를 반환해도 상관 없습니다. 일반적으로 다음 기능들은 클린-업 기능이 필요하지 않습니다.
     1. API 요청을 통한 데이터 가져오기
@@ -144,7 +225,7 @@ const Example = () => {
 
 ### useMemo, useCallback, React.memo
 
-- **useMemo** is a hook in React that allows you to optimize the performance of your component by memoizing a computed value. Memoizing a value means caching the result of a computation so that it can be reused without having to be recomputed, as long as its dependencies have not changed. useMemo takes two arguments: a function that returns the memoized value, and an array of dependencies. The memoized value is computed only when one of its dependencies changes.
+- **useMemo** is a hook in React that allows you to optimize the performance of your component by **memoizing a computed value**. Memoizing a value means caching the result of a computation so that it can be **reused without having to be recomputed**, as long as its dependencies have not changed. useMemo takes two arguments: a function that returns the memoized value, and an array of dependencies. The memoized value is computed only when one of its dependencies changes.
 
 ```javascript
 import React, { useState, useMemo } from "react";
@@ -175,7 +256,7 @@ const Example = () => {
 };
 ```
 
-- **useCallback** is a hook in React that allows you to optimize the performance of your component by memoizing a function. Memoizing a function means caching the result of the function so that it can be reused without having to be re-created, as long as its dependencies have not changed. useCallback takes two arguments: a function to be memoized, and an array of dependencies. The memoized function is created only when one of its dependencies changes.
+- **useCallback** is a hook in React that allows you to optimize the performance of your component by memoizing a **function**. Memoizing a function means **caching the result of the function** so that it can be reused without having to be re-created, as long as its dependencies have not changed. **useCallback takes two arguments: a function to be memoized, and an array of dependencies**. The memoized function is created only when one of its dependencies changes.
 
 ```javascript
 import React, { useState, useCallback } from "react";
@@ -201,10 +282,10 @@ const Example = () => {
 };
 ```
 
-- React.memo is a higher-order component in React that allows you to optimize the performance of your component by memoizing its render result. Memoizing the render result means caching the output of the component so that it does not re-render unnecessarily.
+- **React.memo** is a higher-order component in React that allows you to optimize the performance of your component by **memoizing its render result**. Memoizing the render result means **caching the output of the component** so that it does not re-render unnecessarily.
 
-- React.memo works by comparing the previous and current props of the component and only re-rendering it if the props have changed. This is useful when you have a component that does not need to update frequently and you want to avoid the overhead of re-rendering it unnecessarily.
-  - Note that React.memo is similar to the useMemo hook, but it is used for optimizing the performance of components rather than individual values. While useMemo is used to memoize a computed value, React.memo is used to memoize the render result of a component.
+- **React.memo works by comparing** the previous and current props of the component **and only re-rendering it if the props have changed**. This is useful when you have a component that does not need to update frequently and you want to avoid the overhead of re-rendering it unnecessarily.
+  - Note that React.memo is similar to the useMemo hook, but it is used for **optimizing the performance of components rather than individual values**. While useMemo is used to memoize a computed value, React.memo is used to memoize the render result of a component.
 
 ```javascript
 import React from "react";
@@ -235,9 +316,9 @@ const Example = () => {
 
 ### useReducer
 
-- useReducer is a hook in React that allows you to manage state updates and complex logic in your components in a centralized and structured way. The hook provides a way to manage state that depends on the previous state and is used as an alternative to setState in some cases.
+- useReducer is a hook in React that allows you to **manage state updates and complex logic in your components in a centralized and structured way**. The hook provides a way to manage state that depends on the previous state and is used as an alternative to setState in some cases.
 
-- useReducer takes two arguments: a reducer function and an initial state. The reducer function is a pure function that receives the current state and an action and returns the next state. The initial state is used to initialize the state of the component.
+- useReducer takes two arguments: **a reducer function** and **an initial state**. The reducer function is a pure function that receives the **current state** and **an action** and returns the next state. The initial state is used to initialize the state of the component.
   - Note that useReducer is often used in complex components that need to manage complex state updates and/or perform complex calculations. It is an alternative to the setState method, which can be difficult to manage in complex components. The useReducer hook allows you to manage state updates and complex logic in a centralized and structured way, which can make your components easier to understand and maintain.
 
 ```javascript
@@ -278,10 +359,10 @@ function Counter() {
 
 ### React.createContext
 
-- React.createContext is a method in React that creates a Context object. A Context provides a way to share values between components without having to pass props down manually through every level of the component tree.
+- React.createContext is a method in React that creates a Context object. A Context provides a way to **share values between components without having to pass props down** manually through every level of the component tree.
 
 - The React.createContext method creates a Context object that can be used to provide values to components. The method takes an optional default value as its argument, which will be used as the value of the context if no value is provided by the nearest Provider.
-  - Note that the useContext hook allows you to access the value of the context in a convenient and efficient way, without having to pass the context value down through multiple levels of the component tree as props. This makes it easy to share values between components, even when they are far apart in the component tree.
+  - Note that the useContext hook allows you to access the value of the context in a convenient and efficient way, without having to pass the context value down through multiple levels of the component tree as props. This makes it easy to share values between components, **even when they are far apart in the component tree**.
 
 ```javascript
 import React, { createContext, useState } from "react";
@@ -314,60 +395,65 @@ function ThemeDisplay() {
 
 - 참조 : https://react.vlpt.us/basic/23-immer.html
 
-### 클래스형 컴포넌트의 라이프사이클
-
-![lifecycle](https://i.imgur.com/cNfpEph.png)
-
-1. Render: Constructor, getDerivedStateFromProps, shouldComponentUpdate, Render
-2. Pre-commit: getSnapshotBeforeUpdate
-3. Commit: react Dom & refs update, componentDidMount, componentDidUpdate, componentWillUnmount
-
-- Mounting: This phase starts when a component is added to the DOM, and it includes the following methods:
-- constructor: This method is called when the component is created. It's a good place to initialize state and bind event handlers.
-- render: This method returns a description of what the component should look like. It should be a pure function that doesn't modify the component's state.
-- componentDidMount: This method is called after the component has been added to the DOM. It's a good place to make API requests, start timers, and interact with other DOM elements.
-- Updating: This phase starts when the component's state or props change, and it includes the following methods:
-- render: As mentioned before, this method is called whenever the component needs to re-render.
-- shouldComponentUpdate: This method is called before the render method, and it allows you to avoid unnecessary re-renders.
-- componentDidUpdate: This method is called after the component has been updated. It's a good place to make API requests or other updates that depend on the component's state or props.
-- Unmounting: This phase starts when a component is removed from the DOM, and it includes the following method:
-- componentWillUnmount: This method is called just before the component is removed from the DOM. It's a good place to clean up any timers, event listeners, or other resources that the component has created.
-
-```javascript
-class MyComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { count: 0 };
-  }
-
-  componentDidMount() {
-    console.log("Component mounted");
-  }
-
-  componentDidUpdate() {
-    console.log("Component updated");
-  }
-
-  componentWillUnmount() {
-    console.log("Component will unmount");
-  }
-
-  render() {
-    return (
-      <div>
-        <p>{this.state.count}</p>
-        <button onClick={() => this.setState({ count: this.state.count + 1 })}>
-          Increase count
-        </button>
-      </div>
-    );
-  }
-}
-```
-
 ### componentDidCatch
 
-===
+---
+
+## Meaning of &(Ampersand) in React
+
+-
+
+![참조](https://velog.io/@nowod_it/React-Styled-Components%EC%9D%98-Ampersand-%EC%9D%98%EB%AF%B8)
+
+## styled-components
+
+- Styled-components is a CSS-in-JS library for React that allows you to write actual CSS code to style your components. It enhances the maintainability and modularity of your styles and eliminates the need for separate CSS files.
+
+- how to Use
+
+  1. Reusing styles: You can create a single styled-component and use it in multiple places throughout your application, making it easy to ensure consistency in your design.
+  2. Dynamic styling: You can pass props to your styled-components to make the styles dynamic. For example:
+
+  ```javascript
+  const StyledButton = styled.button`
+    background-color: ${(props) => (props.primary ? "palevioletred" : "white")};
+    color: ${(props) => (props.primary ? "white" : "palevioletred")};
+    font-size: 1em;
+    margin: 1em;
+    padding: 0.25em 1em;
+    border: 2px solid palevioletred;
+    border-radius: 3px;
+  `;
+
+  <StyledButton primary>Click me!</StyledButton>;
+  ```
+
+  3.
+
+```javascript
+import React from "react";
+import styled from "styled-components";
+
+const StyledButton = styled.button`
+  background-color: palevioletred;
+  color: white;
+  font-size: 1em;
+  margin: 1em;
+  padding: 0.25em 1em;
+  border: 2px solid palevioletred;
+  border-radius: 3px;
+`;
+
+const Button = ({ children }) => <StyledButton>{children}</StyledButton>;
+
+export default Button;
+```
+
+- In the code above, styled is a factory function from styled-components that takes a HTML tag or a component as an argument and returns a new component with the styles specified in the template literal.
+
+- You can then use the StyledButton component just like any other React component in your application. The styles defined in the template literal will be applied to the StyledButton component.
+
+---
 
 ## React Router
 
