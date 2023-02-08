@@ -1,6 +1,4 @@
-# React
-
-## react란?
+## React
 
 - React is a popular JavaScript library used for building user interfaces. It was developed by Facebook and is now maintained by Facebook and a community of individual developers and companies.
 
@@ -401,42 +399,81 @@ function ThemeDisplay() {
 
 ## Meaning of &(Ampersand) in React
 
--
+- The & symbol in React is used as a reference to the class instance. When you declare a class component in React, you can use the this keyword inside the component to access its properties and methods. The & symbol is used to bind the class instance to the method so that it can be used inside the method without having to use this explicitly.
 
-![참조](https://velog.io/@nowod_it/React-Styled-Components%EC%9D%98-Ampersand-%EC%9D%98%EB%AF%B8)
+```javascript
+import React from "react";
+import ReactDOM from "react-dom/client";
+import styled from "styled-components";
+
+const Thing = styled.div.attrs((/* props */) => ({ tabIndex: 0 }))`
+  color: blue;
+
+  // Thing 컴포넌트 위에 마우스가 올라갈때
+  &:hover {
+    color: red; // <Thing> when hovered
+  }
+
+  // Thing의 바로 옆은 아니지만 형제요소일 때
+  & ~ & {
+    background: tomato; // <Thing> as a sibling of <Thing>, but maybe not directly next to it
+  }
+
+  // Thing이 바로 옆에 붙어있을 때
+  & + & {
+    background: lime; // <Thing> next to <Thing>
+  }
+
+  // Thing이 something이라는 클래스를 갖고있을 때
+  &.something {
+    background: orange; // <Thing> tagged with an additional CSS class ".something"
+  }
+
+  // something-else라는 클래스를 가진 친구안에 있을 때
+  .something-else & {
+    border: 1px solid; // <Thing> inside another element labeled ".something-else"
+  }
+`;
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+  <React.StrictMode>
+    <React.Fragment>
+      <Thing>Hello world!</Thing>
+      <Thing>How ya doing?</Thing>
+      <div></div>
+      <Thing>How ya doing?</Thing>
+      <Thing className="something">The sun is shining...</Thing>
+      <div>Pretty nice day today.</div>
+      <Thing>Don't you think?</Thing>
+      <div className="something-else">
+        <Thing>Splendid.</Thing>
+      </div>
+    </React.Fragment>
+  </React.StrictMode>
+);
+```
+
+![ampersand](https://velog.velcdn.com/images/nowod_it/post/45517639-feca-49f4-99da-9ff1c1fec318/image.png)
 
 ## styled-components
 
 - Styled-components is a CSS-in-JS library for React that allows you to write actual CSS code to style your components. It enhances the maintainability and modularity of your styles and eliminates the need for separate CSS files.
 
-- how to Use
+- In this case, styled-components do nothing in here with CSS code that developer wrote. background declaration is not added to DOM. the styles for the StyledMyComponent will only be injected when the component is actually rendered in the DOM, and will not be included in the initial payload delivered to the client.
 
-  1. Reusing styles: You can create a single styled-component and use it in multiple places throughout your application, making it easy to ensure consistency in your design.
-  2. Dynamic styling: You can pass props to your styled-components to make the styles dynamic. For example:
-
-  ```javascript
-  const StyledButton = styled.button`
-    background-color: ${(props) => (props.primary ? "palevioletred" : "white")};
-    color: ${(props) => (props.primary ? "white" : "palevioletred")};
-    font-size: 1em;
-    margin: 1em;
-    padding: 0.25em 1em;
-    border: 2px solid palevioletred;
-    border-radius: 3px;
-  `;
-
-  <StyledButton primary>Click me!</StyledButton>;
-  ```
-
-  3.
+1. Reusing styles: You can create a single styled-component and use it in multiple places throughout your application, making it easy to ensure consistency in your design.
+2. Dynamic CSS rules: You can pass props to your styled-components to make the styles dynamic. For example:
 
 ```javascript
+// example 1 : conditional styling
+// Button.js
 import React from "react";
 import styled from "styled-components";
 
 const StyledButton = styled.button`
-  background-color: palevioletred;
-  color: white;
+  background-color: ${(props) => (props.primary ? "palevioletred" : "white")};
+  color: ${(props) => (props.primary ? "white" : "palevioletred")};
   font-size: 1em;
   margin: 1em;
   padding: 0.25em 1em;
@@ -444,9 +481,114 @@ const StyledButton = styled.button`
   border-radius: 3px;
 `;
 
-const Button = ({ children }) => <StyledButton>{children}</StyledButton>;
+export const Button = ({ children, primary }) => (
+  <StyledButton primary={primary}>{children}</StyledButton>
+);
+```
 
-export default Button;
+```javascript
+// example2 : extension styling
+import React from "react";
+import styled from "styled-components";
+const Container = styled.div`
+  max-width: 600px;
+  width: 100%;
+  height: 100px;
+`;
+
+const BlackContainer = styled(Container)`
+  background-color: black;
+`;
+
+const RedContainer = styled(Container)`
+  background-color: red;
+`;
+
+return (
+  <>
+    <BlackContainer />
+    <RedContainer />
+  </>
+);
+```
+
+```javascript
+// example3 : Interpolated Scope
+const StyledDiv = styled.div`
+  background-color: black;
+  width: 100px;
+  height: 100px;
+  p {
+    color: white;
+  }
+`;
+
+return (
+  <>
+    <StyledDiv>
+      <p>Title</p>
+    </StyledDiv>
+    <p>content</p>
+  </>
+);
+```
+
+```javascript
+// ex4.) using { css } for dynamic style control
+import styled, { css } from "styled-components";
+
+// theme을 변경하는 btn의 스타일링
+const ThemeSwitchBtn = styled.button`
+  ${({ theme }) => {
+    //props로 전달받은 theme 속성을 사용한다.
+    // App의 theme state가 변경되면 컴포넌트가 재 렌더링되며 다른 색상 값들을 갖게 된다.
+    return css`
+      background-color: ${theme.colors.primary};
+      color: ${theme.colors.secondary};
+      font-size: ${theme.fonts.size.base};
+      border-radius: 2px;
+    `;
+  }}
+`;
+
+const CustomHeader = styled.div`
+  ${({ theme }) => {
+    return css`
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      background-color: ${theme.colors.secondary};
+    `;
+  }}
+`;
+
+const styledComponents = { ThemeSwitchBtn, CustomHeader };
+
+export default styledComponents;
+```
+
+3. Lazy CSS Injection(= Lazy loading): Lazy CSS injection in styled-components is a feature that allows for efficient and optimized stylesheet management in React applications. It works by only injecting the styles for a specific component when it is actually rendered in the DOM.
+
+- This approach helps to reduce the size of the CSS payload delivered to the client, improving the initial load time of the application. Additionally, it also helps with ensuring that only the styles required for the specific components are processed, reducing the runtime overhead.
+
+```javascript
+import styled from "styled-components";
+
+export default function App() {
+  return <ItemList items={[]} />;
+}
+
+function ItemList({ items }) {
+  if (items.length === 0) {
+    return "No items";
+  }
+
+  return <Wrapper>{/* Stuff omitted */}</Wrapper>;
+}
+
+const Wrapper = styled.ul`
+  background: goldenrod;
+`;
 ```
 
 - In the code above, styled is a factory function from styled-components that takes a HTML tag or a component as an argument and returns a new component with the styles specified in the template literal.
@@ -495,13 +637,3 @@ function App() {
   );
 }
 ```
-
-#### 질문거리
-
-inputs: {
-...inputs,
-[action.name] : action.value
-}
-에서의 action.name과,
-users: users.map(user => user.id === action.id ? {...user, active: !user.active} : user)
-에서의 active: !user.active의 차이??
