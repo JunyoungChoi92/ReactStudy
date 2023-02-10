@@ -23,7 +23,6 @@
 17. [Redux](#redux)
 18. [Redux Middleware](#redux-middleware)
 
-===
 
 ## React
 
