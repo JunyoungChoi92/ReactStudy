@@ -499,7 +499,6 @@ function reducer(state, action) {
   }
 }
 
-// UserDispatch 라는 이름으로 내보내줍니다.
 export const UserDispatch = React.createContext(null);
 
 function App() {
@@ -512,7 +511,7 @@ function App() {
     <UserDispatch.Provider value={dispatch}>
       <CreateUser />
       <UserList users={users} />
-      <div>활성사용자 수 : {count}</div>
+      <div>number of active user : {count}</div>
     </UserDispatch.Provider>
   );
 }
@@ -526,7 +525,7 @@ export default App;
 
 - componentDidCatch is a lifecycle method in React that is called when an error is thrown in the render method of a component. This method receives two arguments: the error and an error info object.
 
-It allows developers to catch and handle errors within a component, preventing them from propagating and causing the whole application to break. By using this method, developers can provide fallback UI or log the error to help with debugging.
+It allows developers to catch and handle errors within a component, **preventing them from propagating and causing the whole application to break**. By using this method, developers can provide fallback UI or log the error to help with debugging.
 
 ```javascript
 class ErrorBoundary extends React.Component {
@@ -993,10 +992,10 @@ import * as serviceWorker from './serviceWorker';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import rootReducer from './modules';
-import { composeWithDevTools } from 'redux-devtools-extension'; // 리덕스 개발자 도구
+import { composeWithDevTools } from 'redux-devtools-extension'; // call redux dev-tool
 
-const store = createStore(rootReducer, composeWithDevTools()); // 스토어를 만듭니다.
-// composeWithDevTools 를 사용하여 리덕스 개발자 도구 활성화
+const store = createStore(rootReducer, composeWithDevTools()); // make a store
+// composeWithDevTools 를 사용하여 redux dev-tool activation. composeWithDevTools() is used as a kind of Middleware.
 
 // If we put the store in the Provider component from react-redux lib and wrap the Counter component around it, any component we render will be able to access the React's store.
 ReactDOM.render(
@@ -1030,20 +1029,15 @@ const SET_DIFF = 'counter/SET_DIFF';
 const INCREASE = 'counter/INCREASE';
 const DECREASE = 'counter/DECREASE';
 
-/* 액션 생성함수 만들기 */
-// 액션 생성함수를 만들고 export 키워드를 사용해서 내보내주세요.
 export const setDiff = diff => ({ type: SET_DIFF, diff });
 export const increase = () => ({ type: INCREASE });
 export const decrease = () => ({ type: DECREASE });
 
-/* 초기 상태 선언 */
 const initialState = {
   number: 0,
   diff: 1
 };
 
-/* 리듀서 선언 */
-// 리듀서는 export default 로 내보내주세요.
 export default function counter(state = initialState, action) {
   switch (action.type) {
     case SET_DIFF:
@@ -1066,7 +1060,7 @@ export default function counter(state = initialState, action) {
   }
 }
 
-//if reducers are not alone in a one application, you can combine them into the one with combineReducer().
+//if reducers are not alone in a one application, you can combine them into the one with combineReducer(). it also called RootReducer.
 // modules/index.js
 import { combineReducers } from 'redux';
 import counter from './counter';
@@ -1125,10 +1119,8 @@ function CounterContainer() {
 
   return (
     <Counter
-      // 상태와
       number={number}
       diff={diff}
-      // 액션을 디스패치 하는 함수들을 props로 넣어줍니다.
       onIncrease={onIncrease}
       onDecrease={onDecrease}
       onSetDiff={onSetDiff}
@@ -1141,5 +1133,15 @@ export default CounterContainer;
 ```
 
 ## Redux middleware
+
+- Redux middleware is a main point redux, different with Context API, or MobX.
+- Redux middleware allows the additional works before updating by a reducer taking action after action is dispatched.
+
+  - These are the sample of the additional works. these characteristics of Redux middleware usually makes itself to use with asynchronous processes of Javascript.
+    1. 특정 조건에 따라 액션이 무시되게 만들 수 있습니다.
+    2. 액션을 콘솔에 출력하거나, 서버쪽에 로깅을 할 수 있습니다.
+    3. 액션이 디스패치 됐을 때 이를 수정해서 리듀서에게 전달되도록 할 수 있습니다.
+    4. 특정 액션이 발생했을 때 이에 기반하여 다른 액션이 발생되도록 할 수 있습니다.
+    5. 특정 액션이 발생했을 때 특정 자바스크립트 함수를 실행시킬 수 있습니다.
 
 -
