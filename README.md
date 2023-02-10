@@ -33,7 +33,6 @@
   1. **Reusable Components**: React allows developers to create reusable UI components, which makes it easier to build complex user interfaces.
   2. **Virtual DOM**: React uses a virtual DOM, which increases the app's performance by making updates faster. The virtual DOM can update the real DOM more efficiently than a direct update.
      ![dirtyCheking](https://hyunyujin.github.io/img/dirty-check.png)
-     [출처](https://hyunyujin.github.io/2021/03/14/React03.html)
 
   - but Why we use Virtual DOM? Javscripts performance is upgrading in every year and year?
   - Browser's workflow is here.
