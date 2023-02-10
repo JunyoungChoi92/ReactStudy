@@ -1,3 +1,9 @@
+#### 알림
+
+- 출처가 별도로 적혀있지 않은 경우, "벨로퍼트와 함께하는 모던 리액트"(https://react.vlpt.us/) 출처임을 밝힙니다.
+
+===
+
 # INDEX
 
 1. [React](#react)
@@ -15,6 +21,9 @@
 13. [Meaning of &(Ampersand) in React](#meaning-of-ampersand-in-react)
 14. [styled-components](#styled-components)
 15. [React Router](#react-router)
+16. [React API](#react-api)
+17. [Redux](#redux)
+18. [Redux Middleware](#redux-middleware)
 
 ===
 
@@ -23,11 +32,35 @@
 - React is a popular JavaScript library used for building user interfaces. It was developed by Facebook and is now maintained by Facebook and a community of individual developers and companies.
 
 - There are several reasons why React is widely used:
+
   1. **Reusable Components**: React allows developers to create reusable UI components, which makes it easier to build complex user interfaces.
   2. **Virtual DOM**: React uses a virtual DOM, which increases the app's performance by making updates faster. The virtual DOM can update the real DOM more efficiently than a direct update.
+     ![dirtyCheking](https://hyunyujin.github.io/img/dirty-check.png)
+     [출처](https://hyunyujin.github.io/2021/03/14/React03.html)
+
+  - but Why we use Virtual DOM? Javscripts performance is upgrading in every year and year?
+  - Browser's workflow is here.
+    ![browsing](https://velopert.com/wp-content/uploads/2017/03/wvbwscn7oadykroobdd3.png)
+  - The real problem with DOM manipulation is that each manipulation causes layout changes, tree changes, and rendering. So, for example, if you modify 30 nodes one by one, that means 30 (potential) layouts recalculation and 30 (potential) re-rendering.
+
+  - Virtual DOM isn't just very new, it's just double buffering at the DOM level. When a change occurs, we apply it to the offline DOM tree. This DOM tree **doesn't** even render, so the computational cost is low. After the calculation is finished, the final change is thrown into the actual DOM. we are only doing it **once**. bringing all the changes together Then, the scale of layout calculation and re-rendering will grow. That's how, by combining and applying it, we reduce the number of operations.
+
+  - In fact, this process can be done without Virtual DOM. Just, when there is a change, we can tie the changes and apply it to the DOM fragment and throw it to the existing DOM.
+
+  - So, what is Virtual DOM trying to solve? The process of managing the DOM fragment is automated and abstracted without having to manually work one by one. Not only that, but if we do this ourselves, we have to keep track of which of the existing values has changed and which hasn't changed, which is also what Virtual DOM does automatically. They figure out what's changed, what's not changed.
+
+  - Finally, by allowing Virtual DOM to manage DOM, **we do not have to interact with other components when a component requests DOM manipulation**, and **we do not have to share information** about whether we want to manipulate a particular DOM or have already manipulated it. So we can bring all the work together without having to go through the synchronization of each change.
+
+  - Virtual DOM is not just a DOM manipulator, it is introduced to implement a Declarative development that moves on a per-component basis. It was necessary to introduce a more efficient DOM manipulation method to implement component-level development.
+
+  - One of the common misconceptions is that React is faster than the code writen by javascript. However, React is only fast enough in the normal case, and not fast enough for optimized javascript code as long as double buffers(virtual DOM) are used. As I mentioned earlier, React enables the development of component units, and it is characterized by the use of virtual DOM for this purpose. Therefore, React optimization is an essential option for fast processing.
+
+  - [출처](https://medium.com/@RianCommunity/react%EC%9D%98-%ED%83%84%EC%83%9D%EB%B0%B0%EA%B2%BD%EA%B3%BC-%ED%8A%B9%EC%A7%95-4190d47a28f)
+
   3. **Unidirectional Data Flow**: React follows a unidirectional data flow, which means that the parent components pass data to child components through props. This helps in maintaining the consistency of the app and debugging it is easier.
   4. **Server-side rendering**: React can be used for server-side rendering, which means that the initial HTML can be rendered on the server and then sent to the client, rather than being generated completely on the client-side. **cau.) 기본적으로 CSR이지만, NextJS 등 라이브러리를 통해 SSR 구현이 가능함.**
   5. **Popularity**: React is one of the most popular front-end libraries and has a large community, which means that there are many resources available for learning and support.
+
 - Overall, React makes it easier to build scalable, fast, and dynamic user interfaces, which is why it has become so popular.
 
 ## Virtual DOM, reflecting a actual DOM.
@@ -411,6 +444,82 @@ function ThemeDisplay() {
 
 ## 변수의 불변성을 지키기 위하여 - immer library
 
+```javascript
+import React, { useReducer, useMemo } from "react";
+import UserList from "./UserList";
+import CreateUser from "./CreateUser";
+import produce from "immer";
+
+function countActiveUsers(users) {
+  console.log("활성 사용자 수를 세는중...");
+  return users.filter((user) => user.active).length;
+}
+
+const initialState = {
+  users: [
+    {
+      id: 1,
+      username: "velopert",
+      email: "public.velopert@gmail.com",
+      active: true,
+    },
+    {
+      id: 2,
+      username: "tester",
+      email: "tester@example.com",
+      active: false,
+    },
+    {
+      id: 3,
+      username: "liz",
+      email: "liz@example.com",
+      active: false,
+    },
+  ],
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "CREATE_USER":
+      return produce(state, (draft) => {
+        draft.users.push(action.user);
+      });
+    case "TOGGLE_USER":
+      return produce(state, (draft) => {
+        const user = draft.users.find((user) => user.id === action.id);
+        user.active = !user.active;
+      });
+    case "REMOVE_USER":
+      return produce(state, (draft) => {
+        const index = draft.users.findIndex((user) => user.id === action.id);
+        draft.users.splice(index, 1);
+      });
+    default:
+      return state;
+  }
+}
+
+// UserDispatch 라는 이름으로 내보내줍니다.
+export const UserDispatch = React.createContext(null);
+
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const { users } = state;
+
+  const count = useMemo(() => countActiveUsers(users), [users]);
+  return (
+    <UserDispatch.Provider value={dispatch}>
+      <CreateUser />
+      <UserList users={users} />
+      <div>활성사용자 수 : {count}</div>
+    </UserDispatch.Provider>
+  );
+}
+
+export default App;
+```
+
 - 참조 : https://react.vlpt.us/basic/23-immer.html
 
 ## componentDidCatch
@@ -660,7 +769,7 @@ const Wrapper = styled.ul`
   1. BrowserRouter: a Router that uses the HTML5 history API to update the URL in response to navigation events.
   2. HashRouter: a Router that uses the URL hash to update the URL in response to navigation events.
   3. Route: a component that matches the current URL to a set of predefined paths and renders the corresponding component when a match is found.
-  4. Link: a component that allows the user to navigate to a new URL without reloading the entire page.
+  4. Link: a component that allows the user to navigate to a new URL **without** reloading the entire page. Additionally, the Link component provides additional features and functionalities that are specifically designed for use in React applications, such as the ability to programmatically navigate to different routes, the ability to pass data to components that are rendered for a given route, and the ability to control the active state of a link based on the current URL.
   5. Switch: a component that allows you to specify a fallback route that will be rendered if none of the Route components match the current URL.
 
 ```javascript
@@ -680,9 +789,357 @@ function App() {
         </ul>
       </nav>
 
-      <Route exact path="/" component={Home} />
+      <Route exact path="/" exact={true} component={Home} />
       <Route path="/about" component={About} />
     </BrowserRouter>
   );
 }
 ```
+
+- Parameter & Query : In the context of React and React Router, a query string and a parameter are **both ways to pass data between routes** in your application.
+  - A query string is a string of key-value pairs that is appended to the end of a URL, after a ? symbol. Query strings are used to pass data that is not part of the URL's path structure, but is instead used to provide additional information to the server. For example, the query string **?sort=descending** might be used to specify that data should be sorted in descending order.
+  - A parameter, on the other hand, is a placeholder in the URL's path structure that is replaced with a specific value when the URL is used. Parameters are used to pass data that is part of the URL's path structure, and can be used to represent dynamic values, such as a user's ID or a product's name. For example, the URL /user/:123 might contain a parameter named id with the value 123.
+
+```javascript
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+
+function App() {
+  return (
+    <Router>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link to="/about">About</Link>
+          </li>
+        </ul>
+      </nav>
+
+      <Route exact path="/" exact={true} component={Home} />
+      <Route path="/about" component={About} />
+      <Route path="/user/:id" component={User} />
+    </Router>
+  );
+}
+
+function Home() {
+  return <h2>Home</h2>;
+}
+
+function User({ match }) {
+  return <h2>User {match.params.id}</h2>;
+}
+// the :id in the /user/:id path defines a parameter in the URL.
+// The value of this parameter is passed to the User component as a property in the match object.
+```
+
+```javascript
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+
+function App() {
+  return (
+    <Router>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link
+              to={{
+                pathname: "/about",
+                search: "?name=john&age=30",
+              }}
+            >
+              About John
+            </Link>
+          </li>
+        </ul>
+      </nav>
+
+      <Route exact path="/" component={Home} />
+      <Route path="/about" component={About} />
+    </Router>
+  );
+}
+
+function Home() {
+  return <h2>Home</h2>;
+}
+
+// The URLSearchParams API is used to parse the query string and extract the values of the name and age parameters.
+// for instance, ?param1=value1&param2=value2" to param1 = "value1", param2 = "value2", and so on..
+function About({ location }) {
+  const query = new URLSearchParams(location.search);
+  const name = query.get("name");
+  const age = query.get("age");
+  return (
+    <h2>
+      About {name} ({age})
+    </h2>
+  );
+}
+```
+
+## React API
+
+- These are some examples for calling React API.
+
+```javascript
+import { useReducer, useEffect } from "react";
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "LOADING":
+      return {
+        loading: true,
+        data: null,
+        error: null,
+      };
+    case "SUCCESS":
+      return {
+        loading: false,
+        data: action.data,
+        error: null,
+      };
+    case "ERROR":
+      return {
+        loading: false,
+        data: null,
+        error: action.error,
+      };
+    default:
+      throw new Error(`Unhandled action type: ${action.type}`);
+  }
+}
+
+function useAsync(callback, deps = []) {
+  const [state, dispatch] = useReducer(reducer, {
+    loading: false,
+    data: null,
+    error: false,
+  });
+
+  const fetchData = async () => {
+    dispatch({ type: "LOADING" });
+    try {
+      const data = await callback();
+      dispatch({ type: "SUCCESS", data });
+    } catch (e) {
+      dispatch({ type: "ERROR", error: e });
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    // eslint 설정을 다음 줄에서만 비활성화
+    // eslint-disable-next-line
+  }, deps);
+
+  return [state, fetchData];
+}
+
+export default useAsync;
+```
+
+```javascript
+import { useAsync } from "react-async";
+
+const loadCustomer = async ({ customerId }, { signal }) => {
+  const res = await fetch(`/api/customers/${customerId}`, { signal });
+  if (!res.ok) throw new Error(res);
+  return res.json();
+};
+
+const MyComponent = () => {
+  const { data, error, isLoading } = useAsync({
+    promiseFn: loadCustomer,
+    customerId: 1,
+    watch: customerId,
+  });
+  if (isLoading) return "Loading...";
+  if (error) return `Something went wrong: ${error.message}`;
+  if (data)
+    return (
+      <div>
+        <strong>Loaded some data:</strong>
+        <pre>{JSON.stringify(data, null, 2)}</pre>
+      </div>
+    );
+  return null;
+};
+```
+
+## Redux
+
+- Redux is a state management library that was originally designed to work with React, but it can be used with any JavaScript framework or library. It provides a centralized store for holding the application's state, and the store can be updated through actions and reducers.
+
+- **Actions** in Redux are plain JavaScript objects that represent an event that has taken place in the application. They are dispatched using the store's **dispatch** function, and they contain information about the event, such as the type of the event and any data associated with it.
+
+- **Reducers** in Redux are pure functions that take in the current state and an action, and return a new state. They are responsible for updating the application's **state** in response to actions. The new state is returned by the reducer and is stored in the Redux store. Reducer must be a pure function. reducer function has the arguments, State and action object. **the (prior)state must do not be changed, only new State object that occured changing have to be returned**. the reducer function have to return a same result value when reducer function called by exactly same parameters. However, some of the logic may show different results each time you run it(new Date(), or generating random number, etc for example). Such operations are not "pure", so must be handled outside the reducer function. To do that, we use the react **Middlewares**.
+
+- Redux also provides a mechanism for **middleware**, which is code that sits between the dispatch of an action and the update of the store. Middleware can be used to perform additional tasks, such as logging, error handling, and async actions.
+
+- The Redux **store** is a single source for the application's state, and it can be accessed from any point in the application. Usually a one application has one store.
+
+```javascript
+// ./index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import * as serviceWorker from './serviceWorker';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import rootReducer from './modules';
+import { composeWithDevTools } from 'redux-devtools-extension'; // 리덕스 개발자 도구
+
+const store = createStore(rootReducer, composeWithDevTools()); // 스토어를 만듭니다.
+// composeWithDevTools 를 사용하여 리덕스 개발자 도구 활성화
+
+// If we put the store in the Provider component from react-redux lib and wrap the Counter component around it, any component we render will be able to access the React's store.
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('root')
+);
+
+serviceWorker.unregister();
+
+// ./App.js
+import React from 'react';
+import CounterContainer from './containers/CounterContainer';
+import TodosContainer from './containers/TodosContainer';
+
+function App() {
+  return (
+    <div>
+      <CounterContainer />
+      <hr />
+      <TodosContainer />
+    </div>
+  );
+}
+
+export default App;
+
+// modules/counter.js
+const SET_DIFF = 'counter/SET_DIFF';
+const INCREASE = 'counter/INCREASE';
+const DECREASE = 'counter/DECREASE';
+
+/* 액션 생성함수 만들기 */
+// 액션 생성함수를 만들고 export 키워드를 사용해서 내보내주세요.
+export const setDiff = diff => ({ type: SET_DIFF, diff });
+export const increase = () => ({ type: INCREASE });
+export const decrease = () => ({ type: DECREASE });
+
+/* 초기 상태 선언 */
+const initialState = {
+  number: 0,
+  diff: 1
+};
+
+/* 리듀서 선언 */
+// 리듀서는 export default 로 내보내주세요.
+export default function counter(state = initialState, action) {
+  switch (action.type) {
+    case SET_DIFF:
+      return {
+        ...state,
+        diff: action.diff
+      };
+    case INCREASE:
+      return {
+        ...state,
+        number: state.number + state.diff
+      };
+    case DECREASE:
+      return {
+        ...state,
+        number: state.number - state.diff
+      };
+    default:
+      return state;
+  }
+}
+
+//if reducers are not alone in a one application, you can combine them into the one with combineReducer().
+// modules/index.js
+import { combineReducers } from 'redux';
+import counter from './counter';
+import todos from './todos';
+
+const rootReducer = combineReducers({
+  counter,
+  todos
+});
+
+export default rootReducer;
+
+// Presentational component is the component using needed values and functions getting from props, not directly interact with reduct store.
+// component/Counter.js
+import React from 'react';
+
+function Counter({ number, diff, onIncrease, onDecrease, onSetDiff }) {
+  const onChange = e => {
+    // e.target.value 의 타입은 문자열이기 때문에 숫자로 변환해주어야 합니다.
+    onSetDiff(parseInt(e.target.value, 10));
+  };
+  return (
+    <div>
+      <h1>{number}</h1>
+      <div>
+        <input type="number" value={diff} min="1" onChange={onChange} />
+        <button onClick={onIncrease}>+</button>
+        <button onClick={onDecrease}>-</button>
+      </div>
+    </div>
+  );
+}
+
+export default Counter;
+
+// Container component is the component that can dispatch actions or inquire states in redux store. its not using HTML tags and load & use other presentational components.
+// CounterContainer.js
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import Counter from '../components/Counter';
+import { increase, decrease, setDiff } from '../modules/counter';
+
+function CounterContainer() {
+  // useSelector는 리덕스 스토어의 상태를 조회하는 Hook입니다.
+  // state의 값은 store.getState() 함수를 호출했을 때 나타나는 결과물과 동일합니다.
+  const { number, diff } = useSelector(state => ({
+    number: state.counter.number,
+    diff: state.counter.diff
+  }));
+
+  // useDispatch 는 리덕스 스토어의 dispatch 를 함수에서 사용 할 수 있게 해주는 Hook 입니다.
+  const dispatch = useDispatch();
+  const onIncrease = () => dispatch(increase());
+  const onDecrease = () => dispatch(decrease());
+  const onSetDiff = diff => dispatch(setDiff(diff));
+
+  return (
+    <Counter
+      // 상태와
+      number={number}
+      diff={diff}
+      // 액션을 디스패치 하는 함수들을 props로 넣어줍니다.
+      onIncrease={onIncrease}
+      onDecrease={onDecrease}
+      onSetDiff={onSetDiff}
+    />
+  );
+}
+
+export default CounterContainer;
+
+```
+
+## Redux middleware
+
+-
