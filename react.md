@@ -17,14 +17,12 @@
 9. [useState vs useReducer](#usestate-vs-usereducer)
 10. [React.createContext](#reactcreatecontext)
 11. [변수의 불변성을 지키기 위하여 - immer library](#변수의-불변성을-지키기-위하여---immer-library)
-12. [componentDidCatch](#componentdidcatch)
-13. [Meaning of &(Ampersand) in React](#meaning-of-ampersand-in-react)
-14. [styled-components](#styled-components)
-15. [React Router](#react-router)
-16. [React API](#react-api)
-17. [Redux](#redux)
-18. [Redux Middleware](#redux-middleware)
-19. [React-query](#react-query)
+12. [styled-components](#styled-components)
+13. [React Router](#react-router)
+14. [React API](#react-api)
+15. [Redux](#redux)
+16. [Redux Middleware](#redux-middleware)
+17. [React-query](#react-query)
 
 ===
 
@@ -417,89 +415,63 @@ function Counter() {
   - Note that the useContext hook allows you to access the value of the context in a convenient and efficient way, without having to pass the context value down through multiple levels of the component tree as props. This makes it easy to share values between components, **even when they are far apart in the component tree**.
 
 ```javascript
-import React, { createContext, useState } from "react";
-
-const ThemeContext = createContext("light");
-
-function ThemeToggler() {
-  const [theme, setTheme] = useState("light");
-  return (
-    <ThemeContext.Provider value={theme}>
-      <button
-        onClick={() =>
-          setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"))
-        }
-      >
-        Toggle Theme
-      </button>
-      <ThemeDisplay />
-    </ThemeContext.Provider>
-  );
-}
-
-function ThemeDisplay() {
-  const theme = useContext(ThemeContext);
-  return <div>The theme is {theme}</div>;
-}
-```
-
-## 변수의 불변성을 지키기 위하여 - immer library
-
-```javascript
-import React, { useReducer, useMemo } from "react";
-import UserList from "./UserList";
-import CreateUser from "./CreateUser";
-import produce from "immer";
+// App.js
+import React, { useReducer, useMemo } from 'react';
+import UserList from './UserList';
+import CreateUser from './CreateUser';
 
 function countActiveUsers(users) {
-  console.log("활성 사용자 수를 세는중...");
-  return users.filter((user) => user.active).length;
+  console.log('활성 사용자 수를 세는중...');
+  return users.filter(user => user.active).length;
 }
 
 const initialState = {
   users: [
     {
       id: 1,
-      username: "velopert",
-      email: "public.velopert@gmail.com",
-      active: true,
+      username: 'velopert',
+      email: 'public.velopert@gmail.com',
+      active: true
     },
     {
       id: 2,
-      username: "tester",
-      email: "tester@example.com",
-      active: false,
+      username: 'tester',
+      email: 'tester@example.com',
+      active: false
     },
     {
       id: 3,
-      username: "liz",
-      email: "liz@example.com",
-      active: false,
-    },
-  ],
+      username: 'liz',
+      email: 'liz@example.com',
+      active: false
+    }
+  ]
 };
 
 function reducer(state, action) {
   switch (action.type) {
-    case "CREATE_USER":
-      return produce(state, (draft) => {
-        draft.users.push(action.user);
-      });
-    case "TOGGLE_USER":
-      return produce(state, (draft) => {
-        const user = draft.users.find((user) => user.id === action.id);
-        user.active = !user.active;
-      });
-    case "REMOVE_USER":
-      return produce(state, (draft) => {
-        const index = draft.users.findIndex((user) => user.id === action.id);
-        draft.users.splice(index, 1);
-      });
+    case 'CREATE_USER':
+      return {
+        users: state.users.concat(action.user)
+      };
+    case 'TOGGLE_USER':
+      return {
+        ...state,
+        users: state.users.map(user =>
+          user.id === action.id ? { ...user, active: !user.active } : user
+        )
+      };
+    case 'REMOVE_USER':
+      return {
+        ...state,
+        users: state.users.filter(user => user.id !== action.id)
+      };
     default:
       return state;
   }
 }
 
+// UserDispatch 라는 이름으로 내보내줍니다.
 export const UserDispatch = React.createContext(null);
 
 function App() {
@@ -512,107 +484,94 @@ function App() {
     <UserDispatch.Provider value={dispatch}>
       <CreateUser />
       <UserList users={users} />
-      <div>number of active user : {count}</div>
+      <div>활성사용자 수 : {count}</div>
     </UserDispatch.Provider>
   );
 }
 
 export default App;
+
+// CreateUser.js
+import React, { useRef, useContext } from 'react';
+import useInputs from './hooks/useInputs';
+import { UserDispatch } from './App';
+
+const CreateUser = () => {
+  const [{ username, email }, onChange, reset] = useInputs({
+    username: '',
+    email: ''
+  });
+
+  const nextId = useRef(4);
+  const dispatch = useContext(UserDispatch);
+
+  const onCreate = () => {
+    dispatch({
+      type: 'CREATE_USER',
+      user: {
+        id: nextId.current,
+        username,
+        email
+      }
+    });
+    reset();
+    nextId.current += 1;
+  };
+
+  return (
+    <div>
+      <input
+        name="username"
+        placeholder="계정명"
+        onChange={onChange}
+        value={username}
+      />
+      <input
+        name="email"
+        placeholder="이메일"
+        onChange={onChange}
+        value={email}
+      />
+      <button onClick={onCreate}>등록</button>
+    </div>
+  );
+};
+
+export default React.memo(CreateUser);
+```
+
+## 변수의 불변성을 지키기 위하여 - immer library
+
+```javascript
+// before
+const nextState = {
+  ...state,
+  posts: state.posts.map((post) =>
+    post.id === 1
+      ? {
+          ...post,
+          comments: post.comments.concat({
+            id: 3,
+            text: "새로운 댓글",
+          }),
+        }
+      : post
+  ),
+};
+
+// next
+const nextState = produce(state, (draft) => {
+  const post = draft.posts.find((post) => post.id === 1);
+  post.comments.push({
+    id: 3,
+    text: "와 정말 쉽다!",
+  });
+});
 ```
 
 - 참조 : https://react.vlpt.us/basic/23-immer.html
 
-## componentDidCatch
-
-- componentDidCatch is a lifecycle method in React that is called when an error is thrown in the render method of a component. This method receives two arguments: the error and an error info object.
-
-It allows developers to catch and handle errors within a component, **preventing them from propagating and causing the whole application to break**. By using this method, developers can provide fallback UI or log the error to help with debugging.
-
-```javascript
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    logErrorToMyService(error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <h1>Something went wrong.</h1>;
-    }
-
-    return this.props.children;
-  }
-}
-```
-
 ---
-
-## Meaning of &(Ampersand) in React
-
-- The & symbol in React is used as a reference to the class instance. When you declare a class component in React, you can use the this keyword inside the component to access its properties and methods. The & symbol is used to bind the class instance to the method so that it can be used inside the method without having to use this explicitly.
-
-```javascript
-import React from "react";
-import ReactDOM from "react-dom/client";
-import styled from "styled-components";
-
-const Thing = styled.div.attrs((/* props */) => ({ tabIndex: 0 }))`
-  color: blue;
-
-  // Thing 컴포넌트 위에 마우스가 올라갈때
-  &:hover {
-    color: red; // <Thing> when hovered
-  }
-
-  // Thing의 바로 옆은 아니지만 형제요소일 때
-  & ~ & {
-    background: tomato; // <Thing> as a sibling of <Thing>, but maybe not directly next to it
-  }
-
-  // Thing이 바로 옆에 붙어있을 때
-  & + & {
-    background: lime; // <Thing> next to <Thing>
-  }
-
-  // Thing이 something이라는 클래스를 갖고있을 때
-  &.something {
-    background: orange; // <Thing> tagged with an additional CSS class ".something"
-  }
-
-  // something-else라는 클래스를 가진 친구안에 있을 때
-  .something-else & {
-    border: 1px solid; // <Thing> inside another element labeled ".something-else"
-  }
-`;
-
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <React.Fragment>
-      <Thing>Hello world!</Thing>
-      <Thing>How ya doing?</Thing>
-      <div></div>
-      <Thing>How ya doing?</Thing>
-      <Thing className="something">The sun is shining...</Thing>
-      <div>Pretty nice day today.</div>
-      <Thing>Don't you think?</Thing>
-      <div className="something-else">
-        <Thing>Splendid.</Thing>
-      </div>
-    </React.Fragment>
-  </React.StrictMode>
-);
-```
-
-![ampersand](https://velog.velcdn.com/images/nowod_it/post/45517639-feca-49f4-99da-9ff1c1fec318/image.png)
 
 ## styled-components
 
@@ -695,11 +654,11 @@ return (
 // ex4.) using { css } for dynamic style control
 import styled, { css } from "styled-components";
 
-// theme을 변경하는 btn의 스타일링
+// button styling for switching background theme.
 const ThemeSwitchBtn = styled.button`
   ${({ theme }) => {
-    //props로 전달받은 theme 속성을 사용한다.
-    // App의 theme state가 변경되면 컴포넌트가 재 렌더링되며 다른 색상 값들을 갖게 된다.
+    // using theme attributed by props
+    // if theme state is changed, component will be re-rendered and have another colors.
     return css`
       background-color: ${theme.colors.primary};
       color: ${theme.colors.secondary};
@@ -732,85 +691,243 @@ export default styledComponents;
 ```javascript
 import styled from "styled-components";
 
-export default function App() {
-  return <ItemList items={[]} />;
-}
-
 function ItemList({ items }) {
   if (items.length === 0) {
     return "No items";
   }
 
-  return <Wrapper>{/* Stuff omitted */}</Wrapper>;
+  return <Wrapper>{/* any codes */}</Wrapper>;
 }
 
 const Wrapper = styled.ul`
   background: goldenrod;
 `;
+
+export default function App() {
+  return <ItemList items={[]} />;
+}
 ```
 
 - In the code above, styled is a factory function from styled-components that takes a HTML tag or a component as an argument and returns a new component with the styles specified in the template literal.
 
 - You can then use the StyledButton component just like any other React component in your application. The styles defined in the template literal will be applied to the StyledButton component.
 
+### Meaning of &(Ampersand) in React
+
+- The & symbol in React is used as a reference to the class instance. When you declare a class component in React, you can use the this keyword inside the component to access its properties and methods. The & symbol is used to bind the class instance to the method so that it can be used inside the method without having to use this explicitly.
+
+```javascript
+import React from "react";
+import ReactDOM from "react-dom/client";
+import styled from "styled-components";
+
+const Thing = styled.div.attrs((/* props */) => ({ tabIndex: 0 }))`
+  color: blue;
+
+  // Thing 컴포넌트 위에 마우스가 올라갈때
+  &:hover {
+    color: red; // <Thing> when hovered
+  }
+
+  // Thing의 바로 옆은 아니지만 형제요소일 때
+  & ~ & {
+    background: tomato; // <Thing> as a sibling of <Thing>, but maybe not directly next to it
+  }
+
+  // Thing이 바로 옆에 붙어있을 때
+  & + & {
+    background: lime; // <Thing> next to <Thing>
+  }
+
+  // Thing이 something이라는 클래스를 갖고있을 때
+  &.something {
+    background: orange; // <Thing> tagged with an additional CSS class ".something"
+  }
+
+  // something-else라는 클래스를 가진 친구안에 있을 때
+  .something-else & {
+    border: 1px solid; // <Thing> inside another element labeled ".something-else"
+  }
+`;
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+  <React.StrictMode>
+    <React.Fragment>
+      <Thing>Hello world!</Thing>
+      <Thing>How ya doing?</Thing>
+      <div></div>
+      <Thing>How ya doing?</Thing>
+      <Thing className="something">The sun is shining...</Thing>
+      <div>Pretty nice day today.</div>
+      <Thing>Don't you think?</Thing>
+      <div className="something-else">
+        <Thing>Splendid.</Thing>
+      </div>
+    </React.Fragment>
+  </React.StrictMode>
+);
+```
+
+![ampersand](https://velog.velcdn.com/images/nowod_it/post/45517639-feca-49f4-99da-9ff1c1fec318/image.png)
+
+#### Styled-components attrs()
+
+- Attrs() applies in-line style. The original purpose of attrs() was to avoid using the unique attributes of the html tag repeatedly.
+
+```javascript
+import styled from "styled-components";
+
+const PassingPropsButton = styled.button`
+  all: unset;
+  padding: 1rem;
+  background-color: ${(props) => props.bg};
+  color: white;
+  margin-right: 1rem;
+`;
+
+const UseAttrsButton = styled(PassingPropsButton).attrs((props) => ({
+  bg: "red",
+  color: "blue",
+}))`
+  background-color: ${({ bg }) => bg};
+  color: ${({ color }) => color};
+`;
+
+function App() {
+  return (
+    <div>
+      <PassingPropsButton bg="green">BTN</PassingPropsButton>
+      <UseAttrsButton>BTN</UseAttrsButton>
+    </div>
+  );
+}
+
+export default App;
+```
+
 ---
 
 ## React Router
+
+- React is a library that makes it easy to create single-page applications. The single page has the following problems.
+
+  1. Cannot bookmark each page
+  2. Navigation such as going back or forward on the browser is not available.
+
+  - To compensate for this, each address must be created according to the screens and a different view must be displayed at a different address (Routing). However, these features are not built into the reactant itself, so you need to install a related library.
 
 - React Router is a popular third-party library for routing in React applications. It provides a declarative way to manage the routing of your application.
 
 - The Router component takes in a few key props:
 
 - history: an object that provides the methods for managing navigation, such as push, replace, and goBack.
+
+```javascript
+import React, { useEffect } from "react";
+
+function HistorySample({ history }) {
+  const goBack = () => {
+    history.goBack();
+  };
+
+  const goHome = () => {
+    history.push("/");
+  };
+
+  useEffect(() => {
+    console.log(history);
+    const unblock = history.block("정말 떠나실건가요?");
+    return () => {
+      unblock();
+    };
+  }, [history]);
+
+  return (
+    <div>
+      <button onClick={goBack}>뒤로가기</button>
+      <button onClick={goHome}>홈으로</button>
+    </div>
+  );
+}
+
+export default HistorySample;
+```
+
+- useNavigate totally replaced history/useHistory after react v6 published.
+- when useNavigate called, it returns a function to direct another route. this is similar with <Link>(but Link is a tag, it's not easy to be controlled with any conditions developer setted).
+
+```javascript
+import React from "react";
+import { useNavigate } from "react-router-dom";
+
+function HistorySample() {
+  const navigate = useNavigate();
+
+  // 뒤로가기
+  // 인덱스로 처리, 두번 뒤로 가고싶으면 -2
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
+  // 홈으로 가기
+  const handleGoHome = () => {
+    navigate("/");
+  };
+
+  return (
+    <div>
+      <button name="back" onClick={handleGoBack}>
+        뒤로
+      </button>
+      <button name="go" onClick={handleGoHome}>
+        홈으로
+      </button>
+    </div>
+  );
+}
+
+export default HistorySample;
+```
+
 - children: one or more components that will be rendered when the route is active.
 - basename: the base URL for all the routes in the application.
 
 - There are several types of components that React Router provides for defining and managing routes:
+
   1. BrowserRouter: a Router that uses the HTML5 history API to update the URL in response to navigation events.
-  2. HashRouter: a Router that uses the URL hash to update the URL in response to navigation events.
+
+  - Using Browser Router, without a separate server setting( = redirection), results in a 404 error when redirecting reloads or incorrect URL access. This happens because the app we created is SPA. The SPA basically has one entry point. When accessing the domain, the client receives index.html, JS, and CSS files from the server and executes them. Basically, only one page load exists and is only rendered by the History API afterwards.
+  - When using Browser Router, reloading at the root address of the domain is not a problem at all, but this is why reloading or redirection on other paths is not possible. When we reload in another path, the browser looks at the domain address, goes to our server, looks at the path, and looks at the directory such as the path name. However, since our app is not a server-side rendering, it does not have the same folder as the path name, nor does the index.html exist in it. Eventually, the browser displays a 404 error because it could not find the file needed for rendering on the server.
+
+  2. HashRouter: a Router that uses the URL hash to update the URL in response to navigation events. SEO is not supported in this option(It's better for static pages).
   3. Route: a component that matches the current URL to a set of predefined paths and renders the corresponding component when a match is found.
   4. Link: a component that allows the user to navigate to a new URL **without** reloading the entire page. Additionally, the Link component provides additional features and functionalities that are specifically designed for use in React applications, such as the ability to programmatically navigate to different routes, the ability to pass data to components that are rendered for a given route, and the ability to control the active state of a link based on the current URL.
-  5. Switch: a component that allows you to specify a fallback route that will be rendered if none of the Route components match the current URL.
 
 ```javascript
-import { BrowserRouter, Route, Link } from "react-router-dom";
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Main, Page1, Page2, NotFound } from "../pages";
+import { Header } from ".";
 
-function Home() {
-  return <h2>Home</h2>;
-}
-
-function About({ location }) {
-  const query = new URLSearchParams(location.search);
-  const name = query.get("name");
-  const age = query.get("age");
-  return <h2>About {name} ({age})</h2>;
-}
-
-function App() {
+const Router = () => {
   return (
     <BrowserRouter>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to={{pathname: "/about", search: "?name=john&age=30"}}>About</Link>
-          </li>
-        </ul>
-      </nav>
-
+      <Header />
       <Routes>
-        <Route exact path="/" component={Home} />
-        <Route path="/about" component={About} />
-        <Route path="*" component={NotFound} />
-      <Routes>
+        <Route path="/" element={<Main />} />
+        <Route path="/page1/*" element={<Page1 />} />
+        <Route path="/page2/*" element={<Page2 />} />
+        <Route path="/*" element={<NotFound />} />
+      </Routes>
     </BrowserRouter>
   );
-}
+};
+
+export default Router;
 ```
 
-- // React basically supports SPA, so <Link> means similar as <a> in HTML, but has a embedded codes for preventing to go to the another pages by using History API. there is a similar tag as <Link>, <NavLink> tag supports styles change too.
+- React basically supports SPA, so <Link> means similar as <a> in HTML, but has a embedded codes for preventing to go to the another pages by using History API. there is a similar tag as <Link>, <NavLink> tag supports styles change too.
 
 - Parameter & Query : In the context of React and React Router, a query string and a parameter are **both ways to pass data between routes** in your application.
   - A query string is a string of key-value pairs that is appended to the end of a URL, after a ? symbol. Query strings are used to pass data that is not part of the URL's path structure, but is instead used to provide additional information to the server. For example, the query string **?sort=descending** might be used to specify that data should be sorted in descending order.
@@ -875,7 +992,7 @@ function App() {
         </ul>
       </nav>
 
-      <Route exact path="/" component={Home} />
+      <Route path="/" component={Home} />
       <Route path="/about" component={About} />
     </Router>
   );
@@ -950,8 +1067,6 @@ function useAsync(callback, deps = []) {
 
   useEffect(() => {
     fetchData();
-    // eslint 설정을 다음 줄에서만 비활성화
-    // eslint-disable-next-line
   }, deps);
 
   return [state, fetchData];
