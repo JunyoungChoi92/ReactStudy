@@ -24,6 +24,7 @@
 16. [React API](#react-api)
 17. [Redux](#redux)
 18. [Redux Middleware](#redux-middleware)
+19. [React-query](#react-query)
 
 ===
 
@@ -774,6 +775,17 @@ const Wrapper = styled.ul`
 ```javascript
 import { BrowserRouter, Route, Link } from "react-router-dom";
 
+function Home() {
+  return <h2>Home</h2>;
+}
+
+function About({ location }) {
+  const query = new URLSearchParams(location.search);
+  const name = query.get("name");
+  const age = query.get("age");
+  return <h2>About {name} ({age})</h2>;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -783,17 +795,22 @@ function App() {
             <Link to="/">Home</Link>
           </li>
           <li>
-            <Link to="/about">About</Link>
+            <Link to={{pathname: "/about", search: "?name=john&age=30"}}>About</Link>
           </li>
         </ul>
       </nav>
 
-      <Route exact path="/" exact={true} component={Home} />
-      <Route path="/about" component={About} />
+      <Routes>
+        <Route exact path="/" component={Home} />
+        <Route path="/about" component={About} />
+        <Route path="*" component={NotFound} />
+      <Routes>
     </BrowserRouter>
   );
 }
 ```
+
+- // React basically supports SPA, so <Link> means similar as <a> in HTML, but has a embedded codes for preventing to go to the another pages by using History API. there is a similar tag as <Link>, <NavLink> tag supports styles change too.
 
 - Parameter & Query : In the context of React and React Router, a query string and a parameter are **both ways to pass data between routes** in your application.
   - A query string is a string of key-value pairs that is appended to the end of a URL, after a ? symbol. Query strings are used to pass data that is not part of the URL's path structure, but is instead used to provide additional information to the server. For example, the query string **?sort=descending** might be used to specify that data should be sorted in descending order.
@@ -816,7 +833,7 @@ function App() {
         </ul>
       </nav>
 
-      <Route exact path="/" exact={true} component={Home} />
+      <Route exact path="/" component={Home} />
       <Route path="/about" component={About} />
       <Route path="/user/:id" component={User} />
     </Router>
@@ -984,46 +1001,6 @@ const MyComponent = () => {
 - The Redux **store** is a single source for the application's state, and it can be accessed from any point in the application. Usually a one application has one store.
 
 ```javascript
-// ./index.js
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
-import { createStore } from 'redux';
-import { Provider } from 'react-redux';
-import rootReducer from './modules';
-import { composeWithDevTools } from 'redux-devtools-extension'; // call redux dev-tool
-
-const store = createStore(rootReducer, composeWithDevTools()); // make a store
-// composeWithDevTools 를 사용하여 redux dev-tool activation. composeWithDevTools() is used as a kind of Middleware.
-
-// If we put the store in the Provider component from react-redux lib and wrap the Counter component around it, any component we render will be able to access the React's store.
-ReactDOM.render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
-  document.getElementById('root')
-);
-
-serviceWorker.unregister();
-
-// ./App.js
-import React from 'react';
-import CounterContainer from './containers/CounterContainer';
-import TodosContainer from './containers/TodosContainer';
-
-function App() {
-  return (
-    <div>
-      <CounterContainer />
-      <hr />
-      <TodosContainer />
-    </div>
-  );
-}
-
-export default App;
-
 // modules/counter.js
 const SET_DIFF = 'counter/SET_DIFF';
 const INCREASE = 'counter/INCREASE';
@@ -1060,7 +1037,7 @@ export default function counter(state = initialState, action) {
   }
 }
 
-//if reducers are not alone in a one application, you can combine them into the one with combineReducer(). it also called RootReducer.
+//if reducers are not alone, you can combine them into the one with combineReducer(). it also called RootReducer.
 // modules/index.js
 import { combineReducers } from 'redux';
 import counter from './counter';
@@ -1104,8 +1081,8 @@ import Counter from '../components/Counter';
 import { increase, decrease, setDiff } from '../modules/counter';
 
 function CounterContainer() {
-  // useSelector는 리덕스 스토어의 상태를 조회하는 Hook입니다.
-  // state의 값은 store.getState() 함수를 호출했을 때 나타나는 결과물과 동일합니다.
+  // useSelector is the function indicate the state of redux store's state.
+  // state's value is same as the returned value when you call store.getState() function.
   const { number, diff } = useSelector(state => ({
     number: state.counter.number,
     diff: state.counter.diff
@@ -1130,18 +1107,169 @@ function CounterContainer() {
 
 export default CounterContainer;
 
+// ./App.js
+import React from 'react';
+import CounterContainer from './containers/CounterContainer';
+import TodosContainer from './containers/TodosContainer';
+
+function App() {
+  return (
+    <div>
+      <CounterContainer />
+      <hr />
+      <TodosContainer />
+    </div>
+  );
+}
+
+export default App;
+
+// ./index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import * as serviceWorker from './serviceWorker';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import rootReducer from './modules';
+import { composeWithDevTools } from 'redux-devtools-extension'; // call redux dev-tool
+
+const store = createStore(rootReducer, composeWithDevTools()); // make a store
+// composeWithDevTools 를 사용하여 redux dev-tool activation. composeWithDevTools() is used as a kind of Middleware.
+
+// If we put the store in the Provider component from react-redux lib and wrap the Counter component around it, any component we render will be able to access the React's store.
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('root')
+);
+
+serviceWorker.unregister();
+
 ```
 
 ## Redux middleware
 
-- Redux middleware is a main point redux, different with Context API, or MobX.
+- Redux Middleware is a way to handle actions before they reach the reducer. It acts as a bridge between the dispatch of an action and the moment it reaches the reducer.
+- The middleware allows you to perform certain operations, such as logging, data fetching, or routing, before an action is passed to the next middleware or the reducer.
 - Redux middleware allows the additional works before updating by a reducer taking action after action is dispatched.
+  [reduxMiddleware]!(https://i.imgur.com/fZs5yvY.png)
 
-  - These are the sample of the additional works. these characteristics of Redux middleware usually makes itself to use with asynchronous processes of Javascript.
-    1. 특정 조건에 따라 액션이 무시되게 만들 수 있습니다.
-    2. 액션을 콘솔에 출력하거나, 서버쪽에 로깅을 할 수 있습니다.
-    3. 액션이 디스패치 됐을 때 이를 수정해서 리듀서에게 전달되도록 할 수 있습니다.
-    4. 특정 액션이 발생했을 때 이에 기반하여 다른 액션이 발생되도록 할 수 있습니다.
-    5. 특정 액션이 발생했을 때 특정 자바스크립트 함수를 실행시킬 수 있습니다.
+- In order to use middleware in a Redux application, you need to apply it using the applyMiddleware function from the redux library, and pass your middleware functions as arguments to this function.
 
--
+```javascript
+// customMiddleware.js
+const customMiddleware = ({ dispatch, getState }) => next => action => {
+  console.log('Action:', action);
+  console.log('State before:', getState());
+  next(action);
+  console.log('State after:', getState());
+  // If explicit "return" value is not exist, customMiddleware function will return undefined. but if you designate return value, it's same as the return of dispatch(action).
+};
+
+export default customMiddleware;
+
+// App.js
+import { createStore, applyMiddleware } from 'redux';
+import rootReducer from './reducers';
+import customMiddleware from './customMiddleware';
+
+const store = createStore(rootReducer, applyMiddleware(customMiddleware)); // applyMiddleware parameter's number is not fixed as one. Just input your middlewares by the sequence.
+
+export default store;
+
+```
+
+- In this example, the custom middleware is a function that takes dispatch and getState functions from the store as arguments and returns a new function that takes the next middleware in the chain as an argument.
+
+- The returned function logs the action and the state before and after the action is processed. It then passes the action to the next middleware or the reducer by calling next(action).
+
+### Redux-thunk
+
+- redux-thunk is a middleware for Redux that allows you to write action creators that return a function instead of an action object. This function can perform asynchronous operations, such as making API calls, and dispatch actions when the data is received.
+
+- To use redux-thunk in your Redux application, you need to apply it using the applyMiddleware function from the redux library, and pass the thunk middleware as an argument to this function.
+
+```javascript
+// store.js
+import { createStore, applyMiddleware } from "redux";
+import thunk from "redux-thunk";
+import rootReducer from "./reducers";
+
+const store = createStore(rootReducer, applyMiddleware(thunk));
+
+export default store;
+
+// actions.js
+export const fetchData = async (dispatch, getState) => {
+  return (dispatch) => {
+    const id = getState().post.activeId;
+
+    dispatch({ type: 'GET_COMMENT' })
+    try {
+      const comments = await api.getComments(id);
+      dispatch({ type: 'GET_COMMENTS_SUCCESS', id, comments });
+    } catch(e) {
+      dispatch({ type: "GET_COMMENTS_ERROR", error: e })
+    }
+  };
+};
+```
+
+- It's similar with this code(=without redux).
+
+```javascript
+export const thunk = (store) => (next) => (action) =>
+  typeof action === "function"
+    ? action(store.dispatch, store.getState)
+    : next(action);
+```
+
+## React-query
+
+- Redux and React-query are both popular libraries for managing state in a React application, but they serve different purposes and have different strengths. Here are 5 key points about each library:
+
+- Redux:
+
+  1. Centralized State Management: Redux provides a centralized store for all the application state, making it easier to manage and debug the state of your application.
+  2. Predictable State Updates: Redux uses a strict set of rules for updating state, which makes it easy to understand and predict how the state will change over time.
+  3. Middleware Support: Redux supports middleware, which allows you to add additional functionality to the state management process, such as logging, crash reporting, and more.
+  4. Strong Community: Redux has a large and active community, with a lot of resources and libraries available to help you solve common problems.
+  5. Good for Complex Applications: Redux is well suited for complex applications with many different state-related requirements, and it helps to keep the state of your application organized and maintainable.
+
+  - But, because of the Redux is not a library for solving issues of API call & async data management, Redux & thunk has problems like 1. redundent Boilerplate codes, 2. standard ways to control api calling is not exist, 3. more codes needed for enhancing user experiences, and so on[참조](https://tech.kakaopay.com/post/react-query-1/).
+
+- React-query:
+
+1. Optimized for REST APIs: React-query is specifically designed for handling REST API requests, and it includes features such as caching, real-time updates, and query management.
+2. Easy to Use: React-query provides a simple and intuitive API that makes it easy to manage API requests, even for complex use cases.
+3. React Native Support: React-query includes built-in support for React Native, making it easy to use on mobile devices.
+4. Automatic Query Management: React-query automatically manages the state of your API requests, freeing you from having to write a lot of boilerplate code.
+5. Lightweight: React-query is designed to be lightweight and fast, and it doesn't add a lot of additional complexity to your codebase.
+
+- In summary, Redux is a powerful state management library that's well suited for complex applications, while React-query is a simpler library that's optimized for handling REST API requests.
+
+- How to use? [참조](https://kyounghwan01.github.io/blog/React/react-query/basic/#usequery)
+
+### For better API calling and Asynchronous data management: Redux & Redux-thunk vs React-query & recoil
+
+- The choice between Redux & Redux-thunk and React-query & Recoil depends on the specific needs of your project and personal preference. Both combinations have their own strengths and weaknesses, and the right choice will depend on your specific requirements.
+
+- Redux & Redux-thunk:
+
+  1. Best for complex applications with many different state-related requirements.
+  2. Provides a centralized store for all the application state, making it easier to manage and debug the state of your application.
+  3. Strict rules for updating state make it easy to understand and predict how the state will change over time.
+  4. Supports middleware, which allows you to add additional functionality to the state management process.
+  5. Has a large and active community, with a lot of resources and libraries available to help you solve common problems.
+
+- React-query & Recoil:
+
+  1. Best for applications that primarily require handling REST API requests.
+  2. React-query provides a simple and intuitive API that makes it easy to manage API requests.
+  3. Recoil is a more general-purpose state management library that's suitable for a wider range of use cases.
+  4. React-query has built-in support for real-time updates, which allows you to automatically receive updates from the server.
+  5. Both libraries are designed to be lightweight and fast, and they don't add a lot of additional complexity to your codebase.
+
+- In summary, if you have a complex application with many state-related requirements, then Redux & Redux-thunk may be a better choice. On the other hand, if your application primarily requires handling REST API requests, then React-query & Recoil may be a better fit.
