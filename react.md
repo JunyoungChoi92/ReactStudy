@@ -33,9 +33,8 @@
 - There are several reasons why React is widely used:
 
   1. **Reusable Components**: React allows developers to create reusable UI components, which makes it easier to build complex user interfaces.
-  2. **Virtual DOM**: React uses a virtual DOM, which increases the app's performance by making updates faster. The virtual DOM can update the real DOM more efficiently than a direct update.
+  2. **Virtual DOM**: React uses a virtual DOM, which increases the app's performance by making updates faster. The virtual DOM can update the real DOM more efficiently than a direct update[출처](https://hyunyujin.github.io/2021/03/14/React03.html).
      ![dirtyCheking](https://hyunyujin.github.io/img/dirty-check.png)
-     [출처](https://hyunyujin.github.io/2021/03/14/React03.html)
 
   - but Why we use Virtual DOM? Javscripts performance is upgrading in every year and year?
   - Browser's workflow is here.
@@ -52,9 +51,7 @@
 
   - Virtual DOM is not just a DOM manipulator, it is introduced to implement a Declarative development that moves on a per-component basis. It was necessary to introduce a more efficient DOM manipulation method to implement component-level development.
 
-  - One of the common misconceptions is that React is faster than the code writen by javascript. However, React is only fast enough in the normal case, and not fast enough for optimized javascript code as long as double buffers(virtual DOM) are used. As I mentioned earlier, React enables the development of component units, and it is characterized by the use of virtual DOM for this purpose. Therefore, React optimization is an essential option for fast processing.
-
-  - [출처](https://medium.com/@RianCommunity/react%EC%9D%98-%ED%83%84%EC%83%9D%EB%B0%B0%EA%B2%BD%EA%B3%BC-%ED%8A%B9%EC%A7%95-4190d47a28f)
+  - One of the common misconceptions is that React is faster than the code writen by javascript. However, React is only fast enough in the normal case, and not fast enough for optimized javascript code as long as double buffers(virtual DOM) are used. As I mentioned earlier, React enables the development of component units, and it is characterized by the use of virtual DOM for this purpose. Therefore, React optimization is an essential option for fast processing[출처](https://medium.com/@RianCommunity/react%EC%9D%98-%ED%83%84%EC%83%9D%EB%B0%B0%EA%B2%BD%EA%B3%BC-%ED%8A%B9%EC%A7%95-4190d47a28f).
 
   3. **Unidirectional Data Flow**: React follows a unidirectional data flow, which means that the parent components pass data to child components through props. This helps in maintaining the consistency of the app and debugging it is easier.
   4. **Server-side rendering**: React can be used for server-side rendering, which means that the initial HTML can be rendered on the server and then sent to the client, rather than being generated completely on the client-side. **cau.) 기본적으로 CSR이지만, NextJS 등 라이브러리를 통해 SSR 구현이 가능함.**
@@ -1021,6 +1018,7 @@ function About({ location }) {
 - These are some examples for calling React API.
 
 ```javascript
+// custom version
 import { useReducer, useEffect } from "react";
 
 function reducer(state, action) {
@@ -1076,6 +1074,7 @@ export default useAsync;
 ```
 
 ```javascript
+// using module version
 import { useAsync } from "react-async";
 
 const loadCustomer = async ({ customerId }, { signal }) => {
